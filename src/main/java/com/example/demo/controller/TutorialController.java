@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,12 +50,17 @@ public class TutorialController {
 
     @GetMapping("/tutorials/{id}")
     public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") String id) {
-        Optional<Tutorial> tutorialData = tutorialService.findById(id);
+        try {
+            Tutorial tutorial = tutorialService.findById(id);
 
-        if (tutorialData.isPresent()) {
-            return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (tutorial != null) {
+                return new ResponseEntity<>(tutorial, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,12 +76,16 @@ public class TutorialController {
 
     @PutMapping("/tutorials/{id}")
     public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") String id, @RequestBody Tutorial tutorial) {
-        Optional<Tutorial> updatedTutorial = tutorialService.update(id, tutorial);
+        try {
+            Tutorial updatedTutorial = tutorialService.update(id, tutorial);
 
-        if (updatedTutorial.isPresent()) {
-            return new ResponseEntity<>(updatedTutorial.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (updatedTutorial != null) {
+                return new ResponseEntity<>(updatedTutorial, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -85,9 +93,9 @@ public class TutorialController {
     public ResponseEntity<String> deleteTutorial(@PathVariable("id") String id) {
         try {
             tutorialService.deleteById(id);
-            return new ResponseEntity<>("Successfully deleted tutorial with id: "+id,HttpStatus.OK);
+            return new ResponseEntity<>("Deleted the tutorial with id: "+id,HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Deletion unsuccessfull.",HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,9 +103,9 @@ public class TutorialController {
     public ResponseEntity<String> deleteAllTutorials() {
         try {
             tutorialService.deleteAll();
-            return new ResponseEntity<>("Deleted all tutorials",HttpStatus.OK);
+            return new ResponseEntity<>("Deleted all tutorials.",HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Deletion unsuccessfull.",HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
